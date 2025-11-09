@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  username      String   @unique
+  email         String   @unique
+  password_hash String
+  role          String   @default("user") // 'admin' or 'user'
+  status        String   @default("pending") // 'pending' | 'approved' | 'declined'
+  createdAt     DateTime @default(now())
+}
+
+model TokenCache {
+  id             Int     @id @default(1)
+  access_token   String?
+  refresh_token  String?
+  expires_at     Int?
+  last_refreshed Int?
+}
+
+model Request {
+  id        Int      @id @default(autoincrement())
+  status    String
+  createdAt DateTime @default(now())
+
+  @@index([status])
+}
