@@ -38,6 +38,7 @@ export default function LoginPage() {
 
     setLoading(true)
     try {
+      // Guard: session is via httpOnly cookie; never read tokens from response
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -45,7 +46,6 @@ export default function LoginPage() {
       })
 
       const data = await res.json().catch(() => ({}))
-      console.log(data)
 
       if (res.ok && data?.ok === true) {
         await router.push('/dashboard')
@@ -80,7 +80,7 @@ export default function LoginPage() {
                 value={form.usernameOrEmail}
                 onChange={(e) => onChange('usernameOrEmail', e.target.value)}
                 placeholder="yourname or you@example.com"
-                className="w-full rounded-md border border-slate-200 dark:border-border bg-white dark:bg-inputBg text-slate-800 dark:text-text-high placeholder:text-slate-400 dark:placeholder:text-muted px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
+                className="w-full rounded-md border border-slate-200 dark:border-border bg-white dark:bg-inputBg text-text-high dark:text-text-high placeholder:text-muted px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
                 required
               />
             </div>
@@ -93,7 +93,7 @@ export default function LoginPage() {
                 value={form.password}
                 onChange={(e) => onChange('password', e.target.value)}
                 placeholder="********"
-                className="w-full rounded-md border border-slate-200 dark:border-border bg-white dark:bg-inputBg text-slate-800 dark:text-text-high placeholder:text-slate-400 dark:placeholder:text-muted px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
+                className="w-full rounded-md border border-slate-200 dark:border-border bg-white dark:bg-inputBg text-text-high dark:text-text-high placeholder:text-muted px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
                 required
               />
             </div>
@@ -109,7 +109,7 @@ export default function LoginPage() {
               </p>
             )}
 
-            <Button type="submit" disabled={loading} className="w-full inline-flex items-center justify-center rounded-md bg-primary-500 hover:bg-primary-600 text-white py-2 text-sm font-medium shadow-sm transition">
+            <Button type="submit" disabled={loading} className="w-full inline-flex items-center justify-center rounded-md bg-primary-500 hover:bg-primary-600 text-white py-2 text-sm font-medium shadow-sm transition disabled:opacity-70 disabled:cursor-not-allowed">
               {loading ? 'Signing in…' : 'Sign in'}
             </Button>
           </form>
@@ -125,7 +125,7 @@ export default function LoginPage() {
           </div>
         </CardContent>
       </Card>
-      <div className="mt-4">
+      <div className="fixed right-4 bottom-4 z-50">
         <ServiceBadge />
       </div>
     </div>
