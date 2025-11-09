@@ -38,6 +38,14 @@ function checkRateLimit(ip: string) {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
+  // Configuration guard: require APP_JWT_SECRET to be set
+  if (!process.env.APP_JWT_SECRET) {
+    console.error('[CONFIG] APP_JWT_SECRET missing')
+    return res
+      .status(500)
+      .json({ ok: false, error: 'Server misconfiguration: APP_JWT_SECRET not set' })
+  }
+
   const ip = getIP(req)
   if (!checkRateLimit(ip)) return res.status(429).json({ error: 'Too many requests' })
 
@@ -61,20 +69,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
 
     if (!user) {
+      console.error('login failed: user not found')
       return res.status(401).json({ ok: false, error: 'Invalid credentials' })
     }
 
     if (user.status !== 'approved') {
-      if (user.status === 'pending') return res.status(403).json({ ok: false, error: 'Signup pending approval' })
-      if (user.status === 'declined') return res.status(403).json({ ok: false, error: 'Signup declined — contact admin' })
+      if (user.status === 'pending') {
+        console.error('login failed: signup pending approval')
+        return res.status(403).json({ ok: false, error: 'Signup pending approval' })
+      }
+      if (user.status === 'declined') {
+        console.error('login failed: signup declined')
+        return res.status(403).json({ ok: false, error: 'Signup declined — contact admin' })
+      }
       return res.status(403).json({ ok: false, error: 'Access not permitted' })
     }
 
     const ok = await bcrypt.compare(password, user.password_hash)
-    if (!ok) return res.status(401).json({ ok: false, error: 'Invalid credentials' })
+    if (!ok) {
+      console.error('login failed: bcrypt mismatch')
+      return res.status(401).json({ ok: false, error: 'Invalid credentials' })
+    }
 
     const secret = process.env.APP_JWT_SECRET
-    if (!secret) return res.status(500).json({ ok: false, error: 'Internal server error' })
+    if (!secret) {
+      console.error('[CONFIG] APP_JWT_SECRET missing at sign stage')
+      return res
+        .status(500)
+        .json({ ok: false, error: 'Server misconfiguration: APP_JWT_SECRET not set' })
+    }
 
     const token = jwt.sign(
       { sub: String(user.id), username: user.username, role: user.role },
@@ -84,6 +107,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const cookieName = process.env.APP_COOKIE_NAME || 'zoho_admin_session'
     const isProd = process.env.NODE_ENV === 'production'
+    // Security: set httpOnly cookie for session; do not include tokens in JSON responses
     // Cookie settings: httpOnly for security, secure in production, SameSite=Lax, root path, 8h maxAge
     const cookie = serialize(cookieName, token, {
       httpOnly: true,
@@ -96,6 +120,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.setHeader('Set-Cookie', cookie)
     return res.status(200).json({ ok: true, role: user.role })
   } catch (e) {
-    return res.status(500).json({ ok: false, error: 'Internal server error' })
+    // Log without leaking secrets
+    const msg = e instanceof Error ? e.message : String(e)
+    console.error('login error', msg)
+    return res
+      .status(500)
+      .json({ ok: false, error: 'Internal server error — please try again later' })
   }
 }
