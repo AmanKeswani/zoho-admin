@@ -50,6 +50,7 @@ export default function SignupPage() {
 
     setLoading(true)
     try {
+      // Guard: do not set any session cookie on signup; pending approval only
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -58,16 +59,16 @@ export default function SignupPage() {
 
       const data = await res.json().catch(() => ({}))
 
-      if (res.status === 201 && data?.ok === true) {
+      if ((res.status === 201 || res.status === 200) && data?.ok === true) {
         setSuccess('Signup submitted — awaiting admin approval.')
         setForm({ username: '', email: '', password: '', confirmPassword: '' })
       } else if (res.status >= 400 && res.status < 500) {
-        setError(data?.error || data?.message || 'Unable to submit signup')
+        setError(data?.error || data?.message || 'Unable to submit signup — try again later.')
       } else {
-        setError('Unable to sign up — try again later')
+        setError('Unable to submit signup — try again later.')
       }
     } catch {
-      setError('Unable to sign up — try again later')
+      setError('Unable to submit signup — try again later.')
     } finally {
       setLoading(false)
     }
@@ -88,7 +89,7 @@ export default function SignupPage() {
                 value={form.username}
                 onChange={(e) => onChange('username', e.target.value)}
                 placeholder="yourname"
-                className="w-full rounded-md border border-slate-200 dark:border-border bg-white dark:bg-inputBg text-slate-800 dark:text-text-high placeholder:text-slate-400 dark:placeholder:text-muted px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
+                className="w-full rounded-md border border-slate-200 dark:border-border bg-white dark:bg-inputBg text-text-high dark:text-text-high placeholder:text-muted px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
                 required
               />
             </div>
@@ -101,7 +102,7 @@ export default function SignupPage() {
                 value={form.email}
                 onChange={(e) => onChange('email', e.target.value)}
                 placeholder="you@example.com"
-                className="w-full rounded-md border border-slate-200 dark:border-border bg-white dark:bg-inputBg text-slate-800 dark:text-text-high placeholder:text-slate-400 dark:placeholder:text-muted px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
+                className="w-full rounded-md border border-slate-200 dark:border-border bg-white dark:bg-inputBg text-text-high dark:text-text-high placeholder:text-muted px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
                 required
               />
             </div>
@@ -114,7 +115,7 @@ export default function SignupPage() {
                 value={form.password}
                 onChange={(e) => onChange('password', e.target.value)}
                 placeholder="********"
-                className="w-full rounded-md border border-slate-200 dark:border-border bg-white dark:bg-inputBg text-slate-800 dark:text-text-high placeholder:text-slate-400 dark:placeholder:text-muted px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
+                className="w-full rounded-md border border-slate-200 dark:border-border bg-white dark:bg-inputBg text-text-high dark:text-text-high placeholder:text-muted px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
                 required
               />
             </div>
@@ -127,7 +128,7 @@ export default function SignupPage() {
                 value={form.confirmPassword}
                 onChange={(e) => onChange('confirmPassword', e.target.value)}
                 placeholder="********"
-                className="w-full rounded-md border border-slate-200 dark:border-border bg-white dark:bg-inputBg text-slate-800 dark:text-text-high placeholder:text-slate-400 dark:placeholder:text-muted px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
+                className="w-full rounded-md border border-slate-200 dark:border-border bg-white dark:bg-inputBg text-text-high dark:text-text-high placeholder:text-muted px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
                 required
               />
             </div>
@@ -143,7 +144,7 @@ export default function SignupPage() {
               </p>
             )}
 
-            <Button type="submit" disabled={loading} className="w-full inline-flex items-center justify-center rounded-md bg-primary-500 hover:bg-primary-600 text-white py-2 text-sm font-medium shadow-sm transition">
+            <Button type="submit" disabled={loading} className="w-full inline-flex items-center justify-center rounded-md bg-primary-500 hover:bg-primary-600 text-white py-2 text-sm font-medium shadow-sm transition disabled:opacity-70 disabled:cursor-not-allowed">
               {loading ? 'Submitting…' : 'Submit'}
             </Button>
           </form>
