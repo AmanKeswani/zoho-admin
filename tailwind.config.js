@@ -23,7 +23,7 @@ export default {
         },
         muted: '#94a3b8',
         border: '#1f2937',
-        inputBg: '#0b1220',
+        inputBg: '#0f1724',
         // Also expose nested variant for background.base if referenced
         'background-base': '#0b1220'
       }
