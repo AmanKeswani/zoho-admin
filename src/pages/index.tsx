@@ -49,7 +49,7 @@ export default function LoginPage() {
       const data = await res.json().catch(() => ({}))
 
       if (res.ok && data?.ok === true) {
-        await router.push('/admin')
+        await router.push('/dashboard')
       } else if (res.status === 401 || res.status === 403) {
         setError(data?.error || 'Invalid credentials')
         // Focus the error element for accessibility
