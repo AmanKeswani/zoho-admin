@@ -1,5 +1,6 @@
 import * as React from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 
 type TabKey = 'home' | 'requests' | 'users' | 'settings'
 
@@ -17,6 +18,24 @@ const tabs: Array<{ key: TabKey; label: string; href: string }> = [
 ]
 
 export default function TopNav({ active = 'home', initials = 'AU', role = 'admin' }: TopNavProps) {
+  const router = useRouter()
+  const [loggingOut, setLoggingOut] = React.useState(false)
+
+  async function handleLogout() {
+    if (loggingOut) return
+    setLoggingOut(true)
+    try {
+      const res = await fetch('/api/auth/logout', { method: 'POST' })
+      const data = await res.json().catch(() => ({}))
+      if (res.ok && data?.ok) {
+        await router.push('/')
+      }
+    } catch {
+      // ignore
+    } finally {
+      setLoggingOut(false)
+    }
+  }
   return (
     <nav className="bg-card border-b border-slate-700 px-6 py-3 flex items-center justify-between" aria-label="Admin navigation">
       {/* Left: Logo */}
@@ -47,11 +66,19 @@ export default function TopNav({ active = 'home', initials = 'AU', role = 'admin
       </div>
 
       {/* Right: User area */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
         <div className="w-9 h-9 rounded-full bg-slate-800 text-text-medium flex items-center justify-center" aria-hidden="true">
           <span className="text-xs font-semibold">{initials}</span>
         </div>
         <span className="text-sm text-text-medium">{role}</span>
+        <button
+          onClick={handleLogout}
+          aria-label="Log out of account"
+          className="text-sm font-medium text-red-500 hover:text-red-400 transition-colors"
+          disabled={loggingOut}
+        >
+          {loggingOut ? 'Logging out…' : 'Logout'}
+        </button>
       </div>
     </nav>
   )
