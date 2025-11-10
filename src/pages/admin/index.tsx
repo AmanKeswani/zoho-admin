@@ -54,44 +54,47 @@ export default function AdminOverview() {
     return () => { mounted = false }
   }, [])
 
-  const total = (counts.pending ?? 0) + (counts.in_progress ?? 0) + (counts.approved ?? counts.completed ?? 0) + (counts.rejected ?? 0)
+  // Total requests: pending + approved(completed) + rejected
+  const total = (counts.pending ?? 0) + (counts.approved ?? counts.completed ?? 0) + (counts.rejected ?? 0)
 
   return (
     <div className="min-h-screen px-6 py-6 bg-background">
-      <h1 className="text-2xl font-semibold text-text-high mb-4">Overview</h1>
+      <h1 className="text-2xl font-semibold text-text-high mb-6">Overview</h1>
       <p className="text-sm text-text-medium mb-6">Key system metrics</p>
 
       {error && (
         <p className="text-sm text-red-600" role="alert">{error}</p>
       )}
 
-      {loading ? (
-        <div className="bg-card border border-border rounded-2xl p-6 shadow-sm max-w-3xl animate-pulse h-[200px]" />
-      ) : (
-        <div className="bg-card border border-border rounded-2xl p-6 shadow-sm max-w-3xl" aria-live="polite" aria-atomic={true}>
-          <h2 className="text-xl font-semibold text-text-high mb-4">Request Overview</h2>
-          <div className="text-5xl font-bold text-text-high">{total}</div>
-          <div className="text-sm text-text-medium mb-6">Total Requests</div>
+      <div className="flex justify-center mt-8">
+        {loading ? (
+          <div className="animate-pulse bg-slate-800 h-40 rounded-xl w-full max-w-3xl" />
+        ) : (
+          <div className="bg-card border border-border rounded-2xl p-6 shadow-sm max-w-3xl w-full" aria-live="polite" aria-atomic={true}>
+            <h2 className="text-xl font-semibold text-text-high mb-4">Request Overview</h2>
+            <div className="text-5xl font-bold text-text-high"><span aria-live="polite">{total}</span></div>
+            <div className="text-sm text-text-medium mb-6">Total Requests</div>
 
-          <div className="flex justify-between text-sm">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-              <span className="text-text-medium">Pending:</span>
-              <span className="text-text-high font-medium">{counts.pending ?? 0}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-green-500"></span>
-              <span className="text-text-medium">Approved:</span>
-              <span className="text-text-high font-medium">{(counts.approved ?? counts.completed ?? 0)}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-red-500"></span>
-              <span className="text-text-medium">Rejected:</span>
-              <span className="text-text-high font-medium">{counts.rejected ?? 0}</span>
+            <div className="flex justify-between text-sm" role="group" aria-label="Request status summary">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                <span className="text-text-medium">Pending:</span>
+                <span className="text-text-high font-medium"><span aria-live="polite">{counts.pending ?? 0}</span></span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-green-500"></span>
+                <span className="text-text-medium">Approved:</span>
+                <span className="text-text-high font-medium"><span aria-live="polite">{(counts.approved ?? counts.completed ?? 0)}</span></span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                <span className="text-text-medium">Rejected:</span>
+                <span className="text-text-high font-medium"><span aria-live="polite">{counts.rejected ?? 0}</span></span>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

@@ -58,7 +58,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         OR: [{ username }, { email }]
       }
     })
-
+    console.log(existing)
     if (existing) {
       if (existing.status === 'pending') {
         return res.status(409).json({ error: 'Signup pending approval' })
@@ -76,6 +76,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           role: 'user'
         }
       })
+      
       return res.status(201).json({ ok: true, message: 'Signup submitted and awaiting admin approval' })
     }
 
