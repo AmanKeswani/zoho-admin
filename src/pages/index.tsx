@@ -18,6 +18,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const errorRef = useRef<HTMLParagraphElement>(null)
+  const [showPassword, setShowPassword] = useState(false)
 
   function onChange<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }))
@@ -53,6 +54,9 @@ export default function LoginPage() {
         setError(data?.error || 'Invalid credentials')
         // Focus the error element for accessibility
         setTimeout(() => errorRef.current?.focus(), 0)
+      } else if (res.status === 500) {
+        setError(data?.error || 'Unable to sign in — try again later')
+        setTimeout(() => errorRef.current?.focus(), 0)
       } else {
         setError('Unable to sign in — try again later')
         setTimeout(() => errorRef.current?.focus(), 0)
@@ -87,15 +91,37 @@ export default function LoginPage() {
 
             <div>
               <Label htmlFor="password" className="text-sm font-medium text-slate-700 dark:text-text-medium">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={form.password}
-                onChange={(e) => onChange('password', e.target.value)}
-                placeholder="********"
-                className="w-full rounded-md border border-slate-200 dark:border-border bg-white dark:bg-inputBg text-text-high dark:text-text-high placeholder:text-muted px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
-                required
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={form.password}
+                  onChange={(e) => onChange('password', e.target.value)}
+                  placeholder="********"
+                  className="w-full rounded-md border border-slate-200 dark:border-border bg-white dark:bg-inputBg text-text-high dark:text-text-high placeholder:text-muted px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400 pr-9"
+                  required
+                />
+                <button
+                  type="button"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-pressed={showPassword}
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-text-medium hover:text-text-high focus:outline-none focus:ring-2 focus:ring-primary-400 rounded-md p-1"
+                >
+                  {showPassword ? (
+                    <svg aria-hidden="true" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-5 0-9.27-3.11-11-8 1.03-2.89 2.94-5.26 5.42-6.73" />
+                      <path d="M1 1l22 22" />
+                      <path d="M9.9 9.9a3 3 0 1 0 4.2 4.2" />
+                    </svg>
+                  ) : (
+                    <svg aria-hidden="true" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  )}
+                </button>
+              </div>
             </div>
 
             {error && (
@@ -125,9 +151,7 @@ export default function LoginPage() {
           </div>
         </CardContent>
       </Card>
-      <div className="fixed right-4 bottom-4 z-50">
-        <ServiceBadge />
-      </div>
+      {/* ServiceBadge moved to _app for persistent bottom-right positioning */}
     </div>
   )
 }
