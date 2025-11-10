@@ -52,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const body: Body = req.body || {}
   const { usernameOrEmail, password } = body
   if (!usernameOrEmail || !password) {
-    return res.status(400).json({ ok: false, error: 'Missing required fields' })
+    return res.status(400).json({ ok: false, error: 'Missing username or password' })
   }
   if (typeof usernameOrEmail !== 'string' || typeof password !== 'string') {
     return res.status(400).json({ ok: false, error: 'Invalid input types' })
@@ -76,7 +76,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (user.status !== 'approved') {
       if (user.status === 'pending') {
         console.error('login failed: signup pending approval')
-        return res.status(403).json({ ok: false, error: 'Signup pending approval' })
+        return res.status(403).json({ ok: false, error: 'Signup pending admin approval' })
       }
       if (user.status === 'declined') {
         console.error('login failed: signup declined')
@@ -125,6 +125,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.error('login error', msg)
     return res
       .status(500)
-      .json({ ok: false, error: 'Internal server error — try again later' })
+      .json({ ok: false, error: 'Internal server error — please try again later' })
   }
 }
