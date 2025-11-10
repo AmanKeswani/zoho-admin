@@ -4,7 +4,8 @@ import jwt from 'jsonwebtoken'
 import { parse } from 'cookie'
 
 export function getAuthCookieName(): string {
-  return process.env.APP_COOKIE_NAME || 'app_session'
+  // Align with login API default cookie name
+  return process.env.APP_COOKIE_NAME || 'zoho_admin_session'
 }
 
 type CookieCarrier = {

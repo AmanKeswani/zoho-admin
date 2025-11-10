@@ -1,5 +1,4 @@
 // Protected Dashboard: verifies JWT cookie server-side and greets the user
-import React from 'react'
 import type { GetServerSideProps } from 'next'
 import Link from 'next/link'
 import { getTokenFromRequest, verifyJWT } from '@/lib/auth'
@@ -13,7 +12,8 @@ type Props = {
 export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => {
   const token = getTokenFromRequest(req)
   const payload = token ? verifyJWT(token) : null
-  if (!payload || !payload.sub || !payload.username || !payload.role) {
+  
+  if (!payload || !payload.sub || !payload.role || !payload.username) {
     return { redirect: { destination: '/', permanent: false } }
   }
   return { props: { username: payload.username, role: payload.role } }
