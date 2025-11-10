@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import type { GetServerSideProps } from 'next'
 import { getTokenFromRequest, verifyJWT } from '@/lib/auth'
-import MetricCard from '@/components/MetricCard'
+// MetricCard grid removed in favor of unified Request Overview card
 
 type Counts = {
   pending: number
@@ -54,6 +54,8 @@ export default function AdminOverview() {
     return () => { mounted = false }
   }, [])
 
+  const total = (counts.pending ?? 0) + (counts.in_progress ?? 0) + (counts.approved ?? counts.completed ?? 0) + (counts.rejected ?? 0)
+
   return (
     <div className="min-h-screen px-6 py-6 bg-background">
       <h1 className="text-2xl font-semibold text-text-high mb-4">Overview</h1>
@@ -63,79 +65,33 @@ export default function AdminOverview() {
         <p className="text-sm text-red-600" role="alert">{error}</p>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" aria-live="polite" aria-atomic={true}>
-        {/* Pending */}
-        {loading ? (
-          <div className="bg-card border border-slate-700 rounded-2xl p-4 shadow-sm animate-pulse h-[140px]" />
-        ) : (
-          <MetricCard
-            title="Pending"
-            value={<span aria-live="polite">{counts.pending ?? 0}</span>}
-            description="Awaiting approval"
-            color="orange"
-            icon={
-              <svg aria-hidden="true" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 16 14" />
-              </svg>
-            }
-          />
-        )}
+      {loading ? (
+        <div className="bg-card border border-border rounded-2xl p-6 shadow-sm max-w-3xl animate-pulse h-[200px]" />
+      ) : (
+        <div className="bg-card border border-border rounded-2xl p-6 shadow-sm max-w-3xl" aria-live="polite" aria-atomic={true}>
+          <h2 className="text-xl font-semibold text-text-high mb-4">Request Overview</h2>
+          <div className="text-5xl font-bold text-text-high">{total}</div>
+          <div className="text-sm text-text-medium mb-6">Total Requests</div>
 
-        {/* In Progress */}
-        {loading ? (
-          <div className="bg-card border border-slate-700 rounded-2xl p-4 shadow-sm animate-pulse h-[140px]" />
-        ) : (
-          <MetricCard
-            title="In Progress"
-            value={<span aria-live="polite">{counts.in_progress ?? 0}</span>}
-            description="Currently processing"
-            color="blue"
-            icon={
-              <svg aria-hidden="true" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2v4" /><path d="M12 18v4" />
-                <path d="M4.93 4.93l2.83 2.83" /><path d="M16.24 16.24l2.83 2.83" />
-                <path d="M2 12h4" /><path d="M18 12h4" />
-                <path d="M4.93 19.07l2.83-2.83" /><path d="M16.24 7.76l2.83-2.83" />
-              </svg>
-            }
-          />
-        )}
-
-        {/* Approved */}
-        {loading ? (
-          <div className="bg-card border border-slate-700 rounded-2xl p-4 shadow-sm animate-pulse h-[140px]" />
-        ) : (
-          <MetricCard
-            title="Approved"
-            value={<span aria-live="polite">{counts.approved ?? 0}</span>}
-            description="Approved requests"
-            color="green"
-            icon={
-              <svg aria-hidden="true" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 6L9 17l-5-5" />
-              </svg>
-            }
-          />
-        )}
-
-        {/* Rejected */}
-        {loading ? (
-          <div className="bg-card border border-slate-700 rounded-2xl p-4 shadow-sm animate-pulse h-[140px]" />
-        ) : (
-          <MetricCard
-            title="Rejected"
-            value={<span aria-live="polite">{counts.rejected ?? 0}</span>}
-            description="Rejected requests"
-            color="red"
-            icon={
-              <svg aria-hidden="true" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 6L6 18" /><path d="M6 6l12 12" />
-              </svg>
-            }
-          />
-        )}
-      </div>
+          <div className="flex justify-between text-sm">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+              <span className="text-text-medium">Pending:</span>
+              <span className="text-text-high font-medium">{counts.pending ?? 0}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-green-500"></span>
+              <span className="text-text-medium">Approved:</span>
+              <span className="text-text-high font-medium">{(counts.approved ?? counts.completed ?? 0)}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+              <span className="text-text-medium">Rejected:</span>
+              <span className="text-text-high font-medium">{counts.rejected ?? 0}</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
