@@ -125,6 +125,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.error('login error', msg)
     return res
       .status(500)
-      .json({ ok: false, error: 'Internal server error — please try again later' })
+      .json({ ok: false, error: 'Internal server error — try again later' })
   }
 }
