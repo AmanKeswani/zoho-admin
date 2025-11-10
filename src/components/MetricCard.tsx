@@ -4,7 +4,7 @@ type Accent = 'green' | 'blue' | 'purple' | 'red' | 'orange'
 
 type MetricCardProps = {
   title: string
-  value: number | string
+  value: React.ReactNode | number | string
   icon?: React.ReactNode
   color?: Accent
   description?: string

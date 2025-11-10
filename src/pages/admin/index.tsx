@@ -1,28 +1,27 @@
-// Admin Home Overview: protected page rendering request metrics
 import React, { useEffect, useState } from 'react'
 import type { GetServerSideProps } from 'next'
-import { requireAdmin } from '@/lib/auth'
+import { getTokenFromRequest, verifyJWT } from '@/lib/auth'
 import MetricCard from '@/components/MetricCard'
 
 type Counts = {
   pending: number
-  completed: number
-  rejected: number
   in_progress: number
+  completed?: number
+  approved?: number
+  rejected: number
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const admin = requireAdmin(req)
-  if (!admin) {
-    return {
-      redirect: { destination: '/', permanent: false }
-    }
+  const token = getTokenFromRequest(req)
+  const payload = token ? verifyJWT(token) : null
+  if (!payload || !payload.sub || !payload.role) {
+    return { redirect: { destination: '/', permanent: false } }
   }
   return { props: {} }
 }
 
-export default function AdminHome() {
-  const [counts, setCounts] = useState<Counts>({ pending: 0, completed: 0, rejected: 0, in_progress: 0 })
+export default function AdminOverview() {
+  const [counts, setCounts] = useState<Counts>({ pending: 0, in_progress: 0, completed: 0, approved: 0, rejected: 0 })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -33,7 +32,16 @@ export default function AdminHome() {
         const res = await fetch('/api/admin/metrics/requests')
         const data = await res.json().catch(() => ({}))
         if (res.ok && data?.ok === true && data?.counts) {
-          if (mounted) setCounts(data.counts as Counts)
+          const c = data.counts as Partial<Counts>
+          const approved = c.approved ?? c.completed ?? 0
+          const nextCounts: Counts = {
+            pending: c.pending ?? 0,
+            in_progress: c.in_progress ?? 0,
+            completed: c.completed ?? 0,
+            approved,
+            rejected: c.rejected ?? 0
+          }
+          if (mounted) setCounts(nextCounts)
         } else {
           if (mounted) setError(data?.error || 'Failed to load metrics')
         }
@@ -43,28 +51,27 @@ export default function AdminHome() {
         if (mounted) setLoading(false)
       }
     })()
-    return () => {
-      mounted = false
-    }
+    return () => { mounted = false }
   }, [])
 
-  const noData = !loading && counts.pending === 0 && counts.completed === 0 && counts.rejected === 0 && counts.in_progress === 0
-
   return (
-    <div className="min-h-screen px-4 py-8 bg-slate-50 dark:bg-background">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-2xl font-semibold text-slate-800 dark:text-text-high">Admin Overview</h1>
-        <p className="text-sm text-slate-700 dark:text-text-medium mt-1">Requests status snapshot</p>
+    <div className="min-h-screen px-6 py-6 bg-background">
+      <h1 className="text-2xl font-semibold text-text-high mb-4">Overview</h1>
+      <p className="text-sm text-text-medium mb-6">Key system metrics</p>
 
-        {error && (
-          <p className="mt-3 text-sm text-red-600" role="alert">{error}</p>
-        )}
+      {error && (
+        <p className="text-sm text-red-600" role="alert">{error}</p>
+      )}
 
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" aria-live="polite" aria-atomic={true} role="region" aria-label="Request status counts">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" aria-live="polite" aria-atomic={true}>
+        {/* Pending */}
+        {loading ? (
+          <div className="bg-card border border-slate-700 rounded-2xl p-4 shadow-sm animate-pulse h-[140px]" />
+        ) : (
           <MetricCard
-            title="Pending Requests"
-            value={counts.pending}
-            description={loading ? 'Loading…' : 'Since last 30 days'}
+            title="Pending"
+            value={<span aria-live="polite">{counts.pending ?? 0}</span>}
+            description="Awaiting approval"
             color="orange"
             icon={
               <svg aria-hidden="true" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -73,30 +80,36 @@ export default function AdminHome() {
               </svg>
             }
           />
+        )}
 
+        {/* In Progress */}
+        {loading ? (
+          <div className="bg-card border border-slate-700 rounded-2xl p-4 shadow-sm animate-pulse h-[140px]" />
+        ) : (
           <MetricCard
             title="In Progress"
-            value={counts.in_progress}
-            description={loading ? 'Loading…' : 'Total'}
+            value={<span aria-live="polite">{counts.in_progress ?? 0}</span>}
+            description="Currently processing"
             color="blue"
             icon={
               <svg aria-hidden="true" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2v4" />
-                <path d="M12 18v4" />
-                <path d="M4.93 4.93l2.83 2.83" />
-                <path d="M16.24 16.24l2.83 2.83" />
-                <path d="M2 12h4" />
-                <path d="M18 12h4" />
-                <path d="M4.93 19.07l2.83-2.83" />
-                <path d="M16.24 7.76l2.83-2.83" />
+                <path d="M12 2v4" /><path d="M12 18v4" />
+                <path d="M4.93 4.93l2.83 2.83" /><path d="M16.24 16.24l2.83 2.83" />
+                <path d="M2 12h4" /><path d="M18 12h4" />
+                <path d="M4.93 19.07l2.83-2.83" /><path d="M16.24 7.76l2.83-2.83" />
               </svg>
             }
           />
+        )}
 
+        {/* Approved */}
+        {loading ? (
+          <div className="bg-card border border-slate-700 rounded-2xl p-4 shadow-sm animate-pulse h-[140px]" />
+        ) : (
           <MetricCard
-            title="Completed"
-            value={counts.completed}
-            description={loading ? 'Loading…' : 'Total'}
+            title="Approved"
+            value={<span aria-live="polite">{counts.approved ?? 0}</span>}
+            description="Approved requests"
             color="green"
             icon={
               <svg aria-hidden="true" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -104,28 +117,24 @@ export default function AdminHome() {
               </svg>
             }
           />
+        )}
 
+        {/* Rejected */}
+        {loading ? (
+          <div className="bg-card border border-slate-700 rounded-2xl p-4 shadow-sm animate-pulse h-[140px]" />
+        ) : (
           <MetricCard
             title="Rejected"
-            value={counts.rejected}
-            description={loading ? 'Loading…' : 'Total'}
+            value={<span aria-live="polite">{counts.rejected ?? 0}</span>}
+            description="Rejected requests"
             color="red"
             icon={
               <svg aria-hidden="true" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 6L6 18" />
-                <path d="M6 6l12 12" />
+                <path d="M18 6L6 18" /><path d="M6 6l12 12" />
               </svg>
             }
           />
-        </div>
-
-        {noData && (
-          <p className="mt-3 text-xs text-slate-700 dark:text-text-medium">No data</p>
         )}
-
-        <div className="mt-6">
-          <a href="/admin/requests" className="text-primary-500 hover:underline font-medium">View all requests</a>
-        </div>
       </div>
     </div>
   )
