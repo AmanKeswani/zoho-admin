@@ -85,10 +85,10 @@ export default function AdminRequestsPage() {
 
   function statusPill(status: string) {
     const s = status.toLowerCase()
-    if (s === 'pending') return <span className="px-2 py-1 rounded-full bg-amber-800/10 text-amber-500 text-xs">Pending</span>
-    if (s === 'completed' || s === 'approved') return <span className="px-2 py-1 rounded-full bg-green-800/10 text-green-500 text-xs">Approved</span>
-    if (s === 'rejected') return <span className="px-2 py-1 rounded-full bg-red-800/10 text-red-500 text-xs">Rejected</span>
-    if (s === 'in_progress') return <span className="px-2 py-1 rounded-full bg-blue-800/10 text-blue-500 text-xs">In Progress</span>
+    if (s === 'pending') return <span className="px-2 py-1 rounded-full bg-warning-700/10 text-warning-500 text-xs">Pending</span>
+    if (s === 'completed' || s === 'approved') return <span className="px-2 py-1 rounded-full bg-success-700/10 text-success-500 text-xs">Approved</span>
+    if (s === 'rejected') return <span className="px-2 py-1 rounded-full bg-danger-700/10 text-danger-500 text-xs">Rejected</span>
+    if (s === 'in_progress') return <span className="px-2 py-1 rounded-full bg-info-700/10 text-info-500 text-xs">In Progress</span>
     return <span className="px-2 py-1 rounded-full bg-slate-800/10 text-text-medium text-xs">{status}</span>
   }
 
@@ -100,7 +100,7 @@ export default function AdminRequestsPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as any)}
-            className="bg-card border border-slate-700 text-text-high text-sm rounded-md px-2 py-1"
+            className="bg-card border border-border text-text-high text-sm rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-400"
             aria-label="Filter by status"
           >
             <option value="all">All</option>
@@ -113,13 +113,13 @@ export default function AdminRequestsPage() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search"
-            className="bg-card border border-slate-700 text-text-high placeholder:text-text-medium text-sm rounded-md px-2 py-1"
+            className="bg-card border border-border text-text-high placeholder:text-text-medium text-sm rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-400"
             aria-label="Search requests"
           />
         </div>
       </div>
 
-      <div className="overflow-x-auto bg-card border border-slate-700 rounded-2xl">
+      <div className="overflow-x-auto bg-card border border-border rounded-2xl">
         <table className="min-w-full text-sm">
           <thead className="text-text-medium">
             <tr>
@@ -144,7 +144,7 @@ export default function AdminRequestsPage() {
               </tr>
             ) : (
               filtered.map((r) => (
-                <tr key={r.id} className="border-t border-slate-700/60">
+                <tr key={r.id} className="border-t border-border/60">
                   <td className="px-4 py-2">{r.id}</td>
                   <td className="px-4 py-2">{r.userId ?? 'N/A'}</td>
                   <td className="px-4 py-2">{r.type ?? 'N/A'}</td>
@@ -152,11 +152,11 @@ export default function AdminRequestsPage() {
                   <td className="px-4 py-2">{new Date(r.createdAt).toLocaleString()}</td>
                   <td className="px-4 py-2">
                     <div className="flex items-center gap-2">
-                      <Link href={`/admin/requests/${r.id}`} className="text-primary-500 hover:underline">View</Link>
+                      <Link href={`/admin/requests/${r.id}`} className="text-info-500 hover:text-info-400 focus:outline-none focus:ring-2 focus:ring-primary-400 rounded">View</Link>
                       {r.status.toLowerCase() === 'pending' ? (
                         <>
-                          <button onClick={() => onApprove(r.id)} className="px-2 py-1 rounded-md bg-green-600 text-white text-xs">Approve</button>
-                          <button onClick={() => onDecline(r.id)} className="px-2 py-1 rounded-md bg-red-600 text-white text-xs">Decline</button>
+                          <button onClick={() => onApprove(r.id)} className="px-2 py-1 rounded-md bg-success-600 hover:bg-success-700 text-white text-xs focus:outline-none focus:ring-2 focus:ring-success-500">Approve</button>
+                          <button onClick={() => onDecline(r.id)} className="px-2 py-1 rounded-md bg-danger-600 hover:bg-danger-700 text-white text-xs focus:outline-none focus:ring-2 focus:ring-danger-500">Decline</button>
                         </>
                       ) : null}
                     </div>

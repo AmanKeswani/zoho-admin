@@ -25,7 +25,31 @@ export default {
         border: '#1f2937',
         inputBg: '#0f1724',
         // Also expose nested variant for background.base if referenced
-        'background-base': '#0b1220'
+        'background-base': '#0b1220',
+        success: {
+          400: '#4ade80',
+          500: '#22c55e',
+          600: '#16a34a',
+          700: '#15803d'
+        },
+        warning: {
+          400: '#fbbf24',
+          500: '#f59e0b',
+          600: '#d97706',
+          700: '#b45309'
+        },
+        danger: {
+          400: '#f87171',
+          500: '#ef4444',
+          600: '#dc2626',
+          700: '#b91c1c'
+        },
+        info: {
+          400: '#60a5fa',
+          500: '#3b82f6',
+          600: '#2563eb',
+          700: '#1d4ed8'
+        }
       }
     }
   }

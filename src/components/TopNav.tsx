@@ -37,7 +37,7 @@ export default function TopNav({ active = 'home', initials = 'AU', role = 'admin
     }
   }
   return (
-    <nav className="bg-card border-b border-slate-700 px-6 py-3 flex items-center justify-between" aria-label="Admin navigation">
+    <nav className="bg-card border-b border-border px-6 py-3 flex items-center justify-between" aria-label="Admin navigation">
       {/* Left: Logo */}
       <div className="flex items-center gap-2">
         <Link href="/admin" className="text-sm font-semibold text-text-high">
@@ -74,7 +74,7 @@ export default function TopNav({ active = 'home', initials = 'AU', role = 'admin
         <button
           onClick={handleLogout}
           aria-label="Log out of account"
-          className="text-sm font-medium text-red-500 hover:text-red-400 transition-colors"
+          className="text-sm font-medium text-danger-500 hover:text-danger-400 transition-colors"
           disabled={loggingOut}
         >
           {loggingOut ? 'Logging out…' : 'Logout'}
