@@ -23,7 +23,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
         {showTopNav ? (
           <>
             <TopNav active={active as any} />
-            <main className="p-6 min-h-[calc(100vh-64px)] bg-background">
+            <main className="p-6 min-h-[calc(100vh-64px)] bg-background text-text-high">
               <Component {...pageProps} />
             </main>
           </>

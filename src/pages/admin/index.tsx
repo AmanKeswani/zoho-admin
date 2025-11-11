@@ -58,7 +58,7 @@ export default function AdminOverview() {
   const total = (counts.pending ?? 0) + (counts.approved ?? counts.completed ?? 0) + (counts.rejected ?? 0)
 
   return (
-    <div className="min-h-screen px-6 py-6 bg-background">
+    <div className="min-h-screen px-6 py-6 bg-background text-text-high">
       <h1 className="text-2xl font-semibold text-text-high mb-6">Overview</h1>
       <p className="text-sm text-text-medium mb-6">Key system metrics</p>
 

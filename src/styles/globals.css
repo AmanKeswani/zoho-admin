@@ -23,16 +23,16 @@
   --color-primary-800: #065f46;
 
   /* Text tokens for theme usage */
-  --color-text-high: #0f172a;
-  --color-text-medium: #475569;
+  --color-text-high: #e6eef8;
+  --color-text-medium: #cbd5e1;
   --color-text-muted: #94a3b8;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Explicit dark class support to avoid relying solely on prefers-color-scheme */
+.dark :root,
+.dark {
+  --background: #0b1220;
+  --foreground: #e6eef8;
 }
 
 body {
